@@ -1,6 +1,7 @@
 import { useAddress } from '@thirdweb-dev/react';
 import Head from 'next/head'
 import Login from "../components/Login";
+import CreatePage from "../components/CreatePage";
 
 export default function Home() {
   const address = useAddress();
@@ -15,7 +16,7 @@ export default function Home() {
       <main>
         <div>
           {!address && <Login />}
-          {address && <h2>You are signed in as {address}</h2>}
+          {address && <CreatePage />}
         </div>
       </main>
     </div>
