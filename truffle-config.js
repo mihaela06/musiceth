@@ -5,13 +5,18 @@ const { INFURA_API_KEY, MNEMONIC } = process.env;
 module.exports = {
   networks: {
     development: {
-     host: "127.0.0.1",    
-     port: 7545,            
-     network_id: "5777",   
+      host: "127.0.0.1",
+      port: 7545,
+      network_id: "5777",
     },
 
     sepolia: {
-      provider: () => new HDWalletProvider(MNEMONIC, INFURA_API_KEY),
+      provider: () => new HDWalletProvider(
+        {
+          mnemonic: process.env.MNEMONIC,
+          providerOrUrl: process.env.INFURA_API_KEY
+        }
+      ),
       network_id: 11155111
     },
 

@@ -294,3 +294,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,react,node,solidity,soliditytruffle
+
+config/development.json
+config/sepolia-fork.json
