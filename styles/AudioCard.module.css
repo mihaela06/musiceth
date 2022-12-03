@@ -1,0 +1,40 @@
+.audio::-webkit-media-controls-panel {
+  background-color: rgb(13 148 136);
+}
+
+.audio {
+  width: 300px;
+}
+
+.hoverButtonDiv {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 1;
+  height: 280px;
+  width: 280px;
+  display: 'flex';
+  justify-content: 'center';
+  align-items: 'center';
+  border-radius: 1.5rem;
+}
+
+.hoverButton {
+  position: relative;
+  backdrop-filter: blur(5px);
+  height: 280px;
+  width: 280px;
+  display: 'flex';
+  justify-content: 'center';
+  align-items: 'center';
+  border-radius: 1.5rem;
+}
+
+.centered {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}

@@ -1,24 +1,17 @@
-import { useAddress } from '@thirdweb-dev/react';
-import Head from 'next/head'
-import Login from "../components/Login";
-import CreatePage from "../components/CreatePage";
+import AudioCard from '../components/AudioCard'
 
-export default function Home() {
-  const address = useAddress();
+export default function Home () {
+  //TODO get NFT CIDs from blockchain
+  const CIDs = [
+    'QmQgrF8444xYLMJbpFvsRpn8TsGexoP3R6tRAX22DAk9R1',
+    'QmRA4LdmDbxht6ZYRnuDKLjxvVcrDBeGc6zcRuKWafDmSa'
+  ]
 
   return (
-    <div className="container">
-      <Head>
-        <title>musiceth</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main>
-        <div>
-          {!address && <Login />}
-          {address && <CreatePage />}
-        </div>
-      </main>
+    <div className='flex flex-wrap justify-center'>
+      {CIDs.map(cid => (
+        <AudioCard key={cid} ipfsHash={cid} />
+      ))}
     </div>
   )
 }
