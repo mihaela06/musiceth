@@ -7,16 +7,24 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import Button from '@mui/material/Button';
 
-const AudioCard = props => {
-  const loadingDisk = '/images/record.gif'
-  const [imgSrc, setImgSrc] = useState(loadingDisk)
-  const [imgSize, setImgSize] = useState(150)
-  const [isHovering, setIsHovering] = useState(false)
-  const [artist, setArtist] = useState('Unknown artist')
-  const [title, setTitle] = useState('Untitled')
-  const [owned, setOwned] = useState(false)
-  const [boolClickSell, setCLickSell] = useState(false);
-  const [sellPrice, setsellPrice] = useState("");
+import Web3 from "web3";
+import { ERC721ABI } from "./ERC721ABI";
+
+const nftAddress = "0xFDd50cF5012E09a276c0Aef33F1410485a2d0A98";
+const web3 = new Web3(window.ethereum);
+const contract = new web3.eth.Contract(ERC721ABI, nftAddress);
+
+//TODO ADD props.cid
+
+const AudioCard = (props) => {
+  const loadingDisk = "/images/record.gif";
+  const [imgSrc, setImgSrc] = useState(loadingDisk);
+  const [imgSize, setImgSize] = useState(150);
+  const [isHovering, setIsHovering] = useState(false);
+  const [artist, setArtist] = useState("Unknown artist");
+  const [title, setTitle] = useState("Untitled");
+  const [owned, setOwned] = useState(false);
+
 
   var ipfsHash = props.ipfsHash
 
@@ -84,6 +92,7 @@ const AudioCard = props => {
   const sellNFT = () => {
     setCLickSell(true);
     console.log("Selling NFT");
+
     //TODO sell NFT
 
     setOwned(!owned)
@@ -94,6 +103,16 @@ const AudioCard = props => {
     //TODO buy NFT
     setOwned(!owned)
   }
+
+    //TODO from where we get the price
+    contract.sellNFT(props.cid, price);
+    setOwned(!owned);
+  };
+
+  const buyNFT = () => {
+    contract.buyNFT(props.cid);
+    setOwned(!owned);
+  };
 
   return (
     <div className='bg-teal-600 rounded-3xl m-5 relative'>
@@ -177,6 +196,5 @@ const AudioCard = props => {
       </div>
     </div>
   )
-}
 
 export default AudioCard
