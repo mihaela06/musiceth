@@ -41,23 +41,57 @@ export default function Mint () {
     var url = json['data']['url'] // tmpfiles upload URL
     var pathname = new URL(url).pathname
     var dlUrl = 'https://tmpfiles.org/dl' + pathname // tmpfiles download URL - has an extra /dl/ in the middle
+    return dlUrl
     var res = await uploadToPinata(dlUrl)
 
-    setUploaded(res.ipfsHash)
+  }
+
+  const mintNFT = async () => {
+    var tempUrl = await uploadTmp()
+    var resPinata = await uploadToPinata(tempUrl)
+
+    //TODO mint NFT
+
+    setUploaded(resPinata.ipfsHash)
   }
 
   return (
-    <div>
-      <input
-        type='file'
-        name='audioFile'
-        accept='audio/mpeg'
-        onChange={updateAudioFile}
-      />
-      <button type='submit' onClick={uploadTmp} disabled={submitButtonDisabled}>
-        Send to server
-      </button>
-      {uploaded && <p>{uploaded}</p>}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignContent: 'center',
+        justifyContent: 'center',
+        height: '70vh',
+        gap: '30px',
+        flexWrap: 'wrap'
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input
+          className='block text-lg text-white border border-gray-300 rounded-lg cursor-pointer bg-teal-600  focus:outline-none'
+          id='file_input'
+          type='file'
+          name='audioFile'
+          accept='audio/mpeg'
+          onChange={updateAudioFile}
+          style={{}}
+        ></input>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <button
+          style={{
+            width: 'fit-content'
+          }}
+          className='bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded'
+          type='submit'
+          onClick={mintNFT}
+          disabled={submitButtonDisabled}
+        >
+          Mint NFT
+        </button>
+      </div>
+      {uploaded && <p>Minted NFT! IPFS hash: {uploaded}</p>}
     </div>
   )
 }
