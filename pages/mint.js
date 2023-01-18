@@ -4,7 +4,7 @@ export default function Mint () {
   const [audio, setAudio] = useState(null)
   const [uploaded, setUploaded] = useState(null)
   const [submitButtonDisabled, setSubmitButtonDisabled] = useState(true)
-
+  const [inputPrice, setInputPrice] = useState('');
   const updateAudioFile = event => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0]
@@ -51,6 +51,8 @@ export default function Mint () {
     var resPinata = await uploadToPinata(tempUrl)
 
     //TODO mint NFT
+    let price=Number(inputPrice)
+    
 
     setUploaded(resPinata.ipfsHash)
   }
@@ -77,6 +79,17 @@ export default function Mint () {
           onChange={updateAudioFile}
           style={{}}
         ></input>
+      </div>
+      <div>
+        <label className='bg-teal-600 text-white py-2 px-4 rounded' for="priceInput">Insert price:</label>
+        <input
+            type="text"
+            name="inputPrice"
+            className='price-input'
+            onChange={(e) => setInputPrice(e.target.value)}
+            value={inputPrice}
+            placeholder="Insert price"
+        />
       </div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <button
