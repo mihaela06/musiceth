@@ -171,6 +171,14 @@ contract AudioNFT is ERC721URIStorage {
         return tokens;
     }
 
+    function updatePriceOfNFT(
+        uint256 tokenId,
+        uint256 newPrice
+    ) external notNegativePrice(newPrice) {
+        NFT memory token = _idToNFT[tokenId];
+        token.price = newPrice;
+    }
+
     function getOnSaleNFTs() public view returns (NFT[] memory) {
         uint256 count = _idNFTs.length;
         NFT[] memory tokens = new NFT[](count);
