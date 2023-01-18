@@ -94,11 +94,10 @@ contract AudioNFT is ERC721URIStorage {
      * @param tokenURI IPFS URI containing NFT metadata
      * @param price Price of the NFT
      */
-    function mintNFT(string memory tokenURI, uint256 price)
-        external
-        notNegativePrice(price)
-        returns (uint256)
-    {
+    function mintNFT(
+        string memory tokenURI,
+        uint256 price
+    ) external notNegativePrice(price) returns (uint256) {
         _tokenIds.increment();
 
         uint256 newTokenId = _tokenIds.current();
@@ -113,16 +112,17 @@ contract AudioNFT is ERC721URIStorage {
         return newTokenId;
     }
 
-    function sellNFT(uint256 tokenId, uint256 price)
-        public
-        onlyOwner(tokenId)
-        notNegativePrice(price)
-    {
+    function sellNFT(
+        uint256 tokenId,
+        uint256 price
+    ) public onlyOwner(tokenId) notNegativePrice(price) {
         _idToNFT[tokenId].isOnSale = true;
         _idToNFT[tokenId].price = price;
     }
 
-    function buyNFT(uint256 tokenId)
+    function buyNFT(
+        uint256 tokenId
+    )
         public
         payable
         isPriceMet(_idToNFT[tokenId].price, msg.value)
@@ -154,4 +154,22 @@ contract AudioNFT is ERC721URIStorage {
 
         return tokens;
     }
+
+    function getOwnNFTs() public view returns (NFT[] memory) {
+        uint256 count = _idNFTs.length;
+        NFT[] memory tokens = new NFT[](count);
+        uint256 tokenIndex = 0;
+
+        for (uint256 i = 0; i < count; i++) {
+            uint256 tokenId = _idNFTs[i];
+            if (ERC721.ownerOf(tokenId) == msg.sender) {
+                tokens[tokenIndex] = _idToNFT[tokenId];
+                tokenIndex++;
+            }
+        }
+
+        return tokens;
+    }
+
+    function getOnSaleNFTs() public view returns (NFT[] memory) {}
 }
