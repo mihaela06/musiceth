@@ -6,7 +6,10 @@
     "build": "next build",
     "start": "next start",
     "migrate:local": "truffle migrate --network development",
-    "migrate:sepolia": "truffle migrate --network sepolia"
+    "migrate:sepolia": "truffle migrate --network sepolia",
+    "build:css": "postcss styles/tailwind.css -o styles/main.css",
+    "watch:css": "postcss styles/tailwind.css -o styles/main.css --watch",
+    "prod:build": "npm run build:css && npm run build"
   },
   "dependencies": {
     "@pinata/sdk": "^2.1.0",
@@ -16,13 +19,17 @@
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "jsmediatags": "^3.9.7",
-    "next": "latest",
+    "next": "13.0.3",
+    "postcss": "^8.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "^4.8.0",
     "@truffle/hdwallet-provider": "^2.1.1",
-    "truffle": "^5.6.8"
+    "truffle": "^5.6.8",
+    "postcss-cli": "^10.1.0",
+    "autoprefixer": "^10.4.13",
+    "tailwindcss": "^3.2.4"
   }
 }

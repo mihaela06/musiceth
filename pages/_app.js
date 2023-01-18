@@ -1,13 +1,17 @@
-import { ChainId, ThirdwebProvider } from '@thirdweb-dev/react';
+import { ChainId, ThirdwebProvider } from '@thirdweb-dev/react'
+import Layout from '../components/Layout'
+import '../styles/main.css'
 
-const activeChainId = ChainId.Sepolia;
+const activeChainId = ChainId.Sepolia
 
-function MyApp({ Component, pageProps }) {
+function MyApp ({ Component, pageProps }) {
   return (
     <ThirdwebProvider desiredChainId={activeChainId}>
-      <Component {...pageProps} />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </ThirdwebProvider>
-  );
+  )
 }
 
 export default MyApp
