@@ -9,7 +9,7 @@ export default function Home () {
 
   return (
     <div className='flex flex-wrap justify-center'>
-      {CIDs.map(i => (
+      {CIDs.map(cid => (
         <AudioCard key={cid} ipfsHash={cid} owned={false} />
       ))}
     </div>
