@@ -6,6 +6,9 @@ const AudioCard = props => {
   const [imgSrc, setImgSrc] = useState(loadingDisk)
   const [imgSize, setImgSize] = useState(150)
   const [isHovering, setIsHovering] = useState(false)
+  const [artist, setArtist] = useState('Unknown artist')
+  const [title, setTitle] = useState('Untitled')
+  const [owned, setOwned] = useState(false)
 
   var ipfsHash = props.ipfsHash
 
@@ -29,7 +32,7 @@ const AudioCard = props => {
     const getImage = async () => {
       try {
         var res = await fetch(
-          '/api/getImage?' +
+          '/api/getAudioMetadata?' +
             new URLSearchParams({
               ipfsHash: ipfsHash
             }),
@@ -38,6 +41,9 @@ const AudioCard = props => {
           }
         )
         var json = await res.json()
+
+        if (json.artist) setArtist(json.artist)
+        if (json.title) setTitle(json.title)
 
         if (json.picUrl) setImgSrc(json.picUrl)
         else setImgSrc('/images/disk.png')
@@ -50,8 +56,26 @@ const AudioCard = props => {
       }
     }
 
-    if (imgSrc == loadingDisk) getImage()
+    if (imgSrc == loadingDisk) {
+      getImage()
+    }
   })
+
+  useEffect(() => {
+    setOwned(props.owned)
+  }, [props.owned])
+
+  const sellNFT = () => {
+    console.log("Selling NFT");
+    //TODO sell NFT
+    setOwned(!owned)
+  }
+
+  const buyNFT = () => {
+    console.log("Buying NFT");
+    //TODO buy NFT
+    setOwned(!owned)
+  }
 
   return (
     <div className='bg-teal-600 rounded-3xl m-5 relative'>
@@ -78,14 +102,25 @@ const AudioCard = props => {
       >
         {isHovering && (
           <div className={styles.hoverButton}>
-            {/* TODO Get actual artist name and song title */}
-            <p className='text-xl p-3'>Artist</p>
-            <p className='text-xl px-3'>Song title</p>
+            <p className='text-xl p-3 font-bold'>{artist}</p>
+            <p className='text-xl px-3 font-bold'>{title}</p>
             <div className={styles.centered}>
-              <button className='text-2xl bg-gray-500 hover:bg-gray-700 text-white font-bold px-6 py-3 rounded-xl'>
-                {/* TODO button will display a different option depending on NFT state (e.g. buy if for sale, sell if owned) */}
-                Buy
-              </button>
+              {owned && (
+                <button
+                  className='text-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-3 rounded-xl'
+                  onClick={sellNFT}
+                >
+                  Sell
+                </button>
+              )}
+              {!owned && (
+                <button
+                  className='text-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-3 rounded-xl'
+                  onClick={buyNFT}
+                >
+                  Buy
+                </button>
+              )}
             </div>
           </div>
         )}
