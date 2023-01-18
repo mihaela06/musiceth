@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/AudioCard.module.css";
 
+import Web3 from "web3";
+import { ERC721ABI } from "./ERC721ABI";
+
+const nftAddress = "0xFDd50cF5012E09a276c0Aef33F1410485a2d0A98";
+const web3 = new Web3(window.ethereum);
+const contract = new web3.eth.Contract(ERC721ABI, nftAddress);
+
+//TODO ADD props.cid
+
 const AudioCard = (props) => {
   const loadingDisk = "/images/record.gif";
   const [imgSrc, setImgSrc] = useState(loadingDisk);
@@ -67,13 +76,13 @@ const AudioCard = (props) => {
 
   const sellNFT = () => {
     console.log("Selling NFT");
-    //TODO sell NFT
+    //TODO from where we get the price
+    contract.sellNFT(props.cid, price);
     setOwned(!owned);
   };
 
   const buyNFT = () => {
-    console.log("Buying NFT");
-    //TODO buy NFT
+    contract.buyNFT(props.cid);
     setOwned(!owned);
   };
 
