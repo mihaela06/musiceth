@@ -709,3 +709,15 @@ video {
     align-items: center;
   }
 }
+
+.price-input{
+  color: rgb(13 148 136);
+  border: solid;
+  border-color: rgb(13 148 136);
+  margin-left: 0.1rem;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
