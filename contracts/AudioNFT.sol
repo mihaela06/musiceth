@@ -27,6 +27,16 @@ error AlreadyOnSale(uint256 tokenId);
  */
 error PriceNotMet(uint256 askingPrice, uint256 txValue);
 
+/** Invalid token ID.
+ * @param tokenId Token ID
+ */
+error TokenIdInvalid(uint256 tokenId);
+
+/** Invalid selling status.
+ * @param isOnSale Token selling status
+ */
+error OnSaleInvalid(bool isOnSale);
+
 contract AudioNFT is ERC721URIStorage {
     struct NFT {
         uint256 tokenId;
@@ -78,26 +88,49 @@ contract AudioNFT is ERC721URIStorage {
         _;
     }
 
+    /**
+     * @notice Modifier for verifying the token ID exists.
+     * @param tokenId Token ID
+     */
+    modifier isTokenIdValid(uint256 tokenId) {
+        if (tokenId > _idNFTs.length) revert TokenIdInvalid(tokenId);
+
+        _;
+    }
+
+    /**
+     * @notice Modifier for verifying the selling status of the token is valid.
+     * @param actualStatus Token selling status
+     * @param desiredStatus Desired selling status
+     */
+    modifier isOnSaleValid(bool actualStatus, bool desiredStatus) {
+        if (actualStatus != desiredStatus) revert OnSaleInvalid(actualStatus);
+
+        _;
+    }
+
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIds;
     mapping(uint256 => NFT) private _idToNFT;
     uint256[] private _idNFTs;
+    uint256 private noOnSale;
 
     // Artists will get ARTIST_SHARE% of the NFT buying price at each resale
     uint256 public constant ARTIST_SHARE = 10;
 
-    constructor() ERC721("AudioNFT", "AudioNFT") {}
+    constructor() ERC721("AudioNFT", "AudioNFT") {
+        noOnSale = 0;
+    }
 
     /**
      * @notice Method for minting a new AudioNFT that will also be put up for sale.
      * @param tokenURI IPFS URI containing NFT metadata
-     * @param price Price of the NFT
      */
-    function mintNFT(
-        string memory tokenURI,
-        uint256 price
-    ) external notNegativePrice(price) returns (uint256) {
+    function mintNFT(string memory tokenURI)
+        external
+        returns (uint256)
+    {
         _tokenIds.increment();
 
         uint256 newTokenId = _tokenIds.current();
@@ -105,28 +138,38 @@ contract AudioNFT is ERC721URIStorage {
         _setTokenURI(newTokenId, tokenURI);
 
         _idNFTs.push(newTokenId);
-        _idToNFT[newTokenId] = NFT(newTokenId, msg.sender, false, price);
-
-        sellNFT(newTokenId, price);
+        _idToNFT[newTokenId] = NFT(newTokenId, msg.sender, false, 0);
 
         return newTokenId;
     }
 
-    function sellNFT(
-        uint256 tokenId,
-        uint256 price
-    ) public onlyOwner(tokenId) notNegativePrice(price) {
+    function sellNFT(uint256 tokenId, uint256 price)
+        public
+        isTokenIdValid(tokenId)
+        onlyOwner(tokenId)
+        notNegativePrice(price)
+        isOnSaleValid(_idToNFT[tokenId].isOnSale, false)
+    {
         _idToNFT[tokenId].isOnSale = true;
+        noOnSale++;
         _idToNFT[tokenId].price = price;
     }
 
-    function buyNFT(
-        uint256 tokenId
-    )
+    function updateNFTPrice(uint256 tokenId, uint256 newPrice)
+        external
+        isTokenIdValid(tokenId)
+        notNegativePrice(newPrice)
+        onlyOwner(tokenId)
+    {
+        _idToNFT[tokenId].price = newPrice;
+    }
+
+    function buyNFT(uint256 tokenId)
         public
         payable
+        isTokenIdValid(tokenId)
         isPriceMet(_idToNFT[tokenId].price, msg.value)
-        isNotOwner(tokenId)
+        isOnSaleValid(_idToNFT[tokenId].isOnSale, true)
     {
         address artist = _idToNFT[tokenId].artist;
         address seller = ERC721.ownerOf(tokenId);
@@ -137,51 +180,61 @@ contract AudioNFT is ERC721URIStorage {
         uint256 sellerShare = totalPrice - artistShare;
 
         _idToNFT[tokenId].isOnSale = false;
+        noOnSale--;
 
         _transfer(seller, buyer, tokenId);
         payable(seller).transfer(sellerShare);
         payable(artist).transfer(artistShare);
     }
 
-    function getNFTs() public view returns (NFT[] memory) {
+    function getNFTs() public view returns (NFT[] memory, string[] memory) {
         uint256 count = _idNFTs.length;
         NFT[] memory tokens = new NFT[](count);
+        string[] memory URIs = new string[](count);
 
         for (uint256 i = 0; i < count; i++) {
             uint256 tokenId = _idNFTs[i];
             tokens[i] = _idToNFT[tokenId];
+            URIs[i] = tokenURI(tokenId);
         }
 
-        return tokens;
+        return (tokens, URIs);
     }
 
-    function getOwnNFTs() public view returns (NFT[] memory) {
+    function getOwnedNFTs()
+        public
+        view
+        returns (NFT[] memory, string[] memory)
+    {
         uint256 count = _idNFTs.length;
-        NFT[] memory tokens = new NFT[](count);
+        uint256 ownedCount = balanceOf(msg.sender);
+        NFT[] memory tokens = new NFT[](ownedCount);
+        string[] memory URIs = new string[](ownedCount);
+
         uint256 tokenIndex = 0;
 
         for (uint256 i = 0; i < count; i++) {
             uint256 tokenId = _idNFTs[i];
             if (ERC721.ownerOf(tokenId) == msg.sender) {
                 tokens[tokenIndex] = _idToNFT[tokenId];
+                URIs[tokenIndex] = tokenURI(tokenId);
+
                 tokenIndex++;
             }
         }
 
-        return tokens;
+        return (tokens, URIs);
     }
 
-    function updatePriceOfNFT(
-        uint256 tokenId,
-        uint256 newPrice
-    ) external notNegativePrice(newPrice) {
-        NFT memory token = _idToNFT[tokenId];
-        token.price = newPrice;
-    }
-
-    function getOnSaleNFTs() public view returns (NFT[] memory) {
+    function getOnSaleNFTs()
+        public
+        view
+        returns (NFT[] memory, string[] memory)
+    {
         uint256 count = _idNFTs.length;
-        NFT[] memory tokens = new NFT[](count);
+        NFT[] memory tokens = new NFT[](noOnSale);
+        string[] memory URIs = new string[](noOnSale);
+
         uint256 tokenIndex = 0;
 
         for (uint256 i = 0; i < count; i++) {
@@ -189,17 +242,11 @@ contract AudioNFT is ERC721URIStorage {
             NFT memory token = _idToNFT[tokenId];
             if (token.isOnSale) {
                 tokens[tokenIndex] = token;
+                URIs[tokenIndex] = tokenURI(tokenId);
+
                 tokenIndex++;
             }
         }
-        return tokens;
-    }
-
-    function updatePriceOfNFT(
-        uint256 tokenId,
-        uint256 newPrice
-    ) external notNegativePrice(newPrice) {
-        NFT memory token = _idToNFT[tokenId];
-        token.price = newPrice;
+        return (tokens, URIs);
     }
 }

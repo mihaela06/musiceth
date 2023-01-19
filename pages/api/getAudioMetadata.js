@@ -26,10 +26,10 @@ export default async (req, res) => {
           return res.json({ picUrl: picUrl, artist: artist, title: title })
         },
         onError: function (error) {
-          return res.status(500).json({ error: error.toString() })
+          return res.status(500).json({ error: error.toString() }).end()
         }
       })
   } catch (e) {
-    return res.status(500).json({ error: e.toString() })
+    return res.status(500).json({ error: e.toString() }).end()
   }
 }
